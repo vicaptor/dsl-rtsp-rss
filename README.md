@@ -9,7 +9,7 @@ A modular video processing pipeline that supports multiple types of detection an
 - `processors.py` - Implements specific processor types
 - `processor_factory.py` - Factory for creating processor instances
 - `pipeline_executor.py` - Main pipeline execution logic
-- `run.py` - Example usage of the pipeline
+- `example_usage.py` - Example usage with synthetic test video
 - `config.yaml` - Pipeline configuration file
 
 ## Requirements
@@ -72,10 +72,12 @@ output:
 ## Running the Example
 
 ```bash
-python run.py
+python example_usage.py
 ```
 
-This will start a video capture from your default camera (usually webcam) and apply the configured processing pipeline. In production, it would use the RTSP stream specified in the configuration.
+This will display a test window showing a synthetic video (moving white rectangle on black background) with the configured processing pipeline applied. The example demonstrates the pipeline's functionality without requiring actual video input.
+
+In production, the pipeline would use the RTSP stream specified in the configuration.
 
 Press 'q' to quit the application.
 
@@ -110,3 +112,7 @@ Press 'q' to quit the application.
 2. RTMP Stream
    - H.264 video streaming
    - Configurable bitrate and FPS
+
+## Testing
+
+The example includes a synthetic test video generator that creates a simple animation (moving white rectangle) to demonstrate the pipeline's functionality without requiring actual video input or webcam access. This allows for easy testing and verification of the processing pipeline.

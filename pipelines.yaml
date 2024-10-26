@@ -1,0 +1,38 @@
+pipelines:
+  # Traffic Monitoring
+  - name: traffic-monitor
+    source:
+      uri: rtsp://traffic-cam.city.gov/intersection1
+      protocol: rtsp
+    processing:
+      uri: grpc://ai.city.gov:50051
+      protocol: grpc
+      steps:
+        - type: object_detection
+          model: yolov5x
+          params:
+            classes: [2, 5, 7, 3]  # vehicles, pedestrians
+        - type: crowd_counting
+          model: crowdnet-v2
+    output:
+      uri: http://traffic.city.gov/events
+      protocol: rss
+      format: xml
+
+  # Security Monitoring
+  - name: security-cam
+    source:
+      uri: rtsp://security.company.com/entrance
+      protocol: rtsp
+    processing:
+      uri: grpc://ai.company.com:50051
+      protocol: grpc
+      steps:
+        - type: face_detection
+          model: facenet-v2
+        - type: motion_detection
+          model: motion-v1
+    output:
+      uri: http://security.company.com/alerts
+      protocol: rss
+      format: xml
