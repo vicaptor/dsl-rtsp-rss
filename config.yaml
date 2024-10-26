@@ -1,0 +1,58 @@
+pipeline:
+  name: multi-processor-pipeline
+  source:
+    uri: rtsp://camera.example.com/stream
+    protocol: rtsp
+    credentials:
+      username: admin
+      password: pass123
+
+  processing:
+    - type: object_detection
+      model_path: /models/yolov5s.pt
+      confidence: 0.5
+      params:
+        classes: [0, 1, 2]
+        nms_threshold: 0.45
+
+    - type: face_detection
+      model_path: /models/face_detection.pth
+      confidence: 0.7
+      params:
+        enable_landmarks: true
+        min_face_size: 20
+
+    - type: license_plate
+      model_path: /models/plate_detector.pt
+      confidence: 0.6
+      params:
+        region: eu
+        enable_recognition: true
+
+    - type: crowd_counting
+      model_path: /models/csrnet.pth
+      confidence: 0.5
+      params:
+        min_crowd_size: 5
+        density_threshold: 0.4
+
+    - type: motion_detection
+      confidence: 0.3
+      params:
+        min_area: 500
+        history: 500
+
+  output:
+    - type: rss
+      uri: http://events.example.com/feed
+      format: xml
+      params:
+        update_interval: 60
+        max_items: 100
+
+    - type: rtmp
+      uri: rtmp://streaming.example.com/live
+      format: h264
+      params:
+        bitrate: 2000k
+        fps: 30
