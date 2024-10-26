@@ -19,6 +19,21 @@ A modular video processing pipeline that supports multiple types of detection an
 - NumPy
 - PyYAML
 
+### Local Development Setup
+
+1. Create a new virtual environment (recommended):
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+2. Install dependencies:
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+
 Install dependencies:
 ```bash
 pip install -r requirements.txt
@@ -72,7 +87,12 @@ output:
 ## Running the Example
 
 ```bash
-python example_usage.py
+python main.py
+```
+
+
+```bash
+python run.py
 ```
 
 This will display a test window showing a synthetic video (moving white rectangle on black background) with the configured processing pipeline applied. The example demonstrates the pipeline's functionality without requiring actual video input.
