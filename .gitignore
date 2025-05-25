@@ -1,3 +1,8 @@
+.pipeline1.yaml
+.pipelines.yaml
+.config.yaml
+.config.yaml
+.env
 # Python
 __pycache__/
 *.py[cod]
@@ -45,3 +50,8 @@ models/
 # Generated protobuf files
 *_pb2.py
 *_pb2_grpc.py
+config.yaml
+
+# Media directories
+images/
+video/

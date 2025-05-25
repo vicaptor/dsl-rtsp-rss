@@ -1,6 +1,5 @@
 import asyncio
 from aiohttp import web
-import aiofiles
 import os
 from feedgen.feed import FeedGenerator
 from datetime import datetime
@@ -55,13 +54,21 @@ class RSSFeedService:
         await site.start()
         logger.info(f"RSS feed service started at http://{self.host}:{self.port}{self.path}")
 
-    async def save_frame(self, frame: np.ndarray, timestamp: float) -> str:
+    def save_frame(self, frame: np.ndarray, timestamp: float) -> str:
         """Save frame as image and return its URL."""
         filename = f"frame_{int(timestamp)}.jpg"
         filepath = os.path.join(self.images_dir, filename)
         
-        # Save frame as JPEG
-        success = cv2.imwrite(filepath, frame)
+        # Resize frame to smaller size (320x240)
+        height, width = frame.shape[:2]
+        target_width = 320
+        target_height = int(height * (target_width / width))
+        small_frame = cv2.resize(frame, (target_width, target_height), interpolation=cv2.INTER_AREA)
+        
+        # Compress and save frame as JPEG with reduced quality
+        encode_params = [int(cv2.IMWRITE_JPEG_QUALITY), 85]
+        success = cv2.imwrite(filepath, small_frame, encode_params)
+        
         if not success:
             logger.error("Failed to save frame image")
             return None
@@ -83,18 +90,23 @@ class RSSFeedService:
         fe.title(title)
         
         # Create description from event data
-        description = []
-        if 'frame_size' in event:
-            description.append(f"Frame size: {event['frame_size']}")
-        if 'brightness' in event:
-            description.append(f"Brightness level: {event['brightness']:.2f}")
-        if 'motion_detected' in event:
-            description.append(f"Motion detected: {event['motion_detected']}")
+        description = ['<div style="font-family: Arial, sans-serif;">']
         
         # Add image if available
         if 'image_url' in event:
-            description.append(f'<img src="{event["image_url"]}" />')
+            description.append(f'<img src="{event["image_url"]}" style="max-width: 320px; height: auto; margin: 10px 0;" />')
             fe.enclosure(event['image_url'], 0, 'image/jpeg')
+        
+        # Add event details in a styled list
+        description.append('<div style="background: #f5f5f5; padding: 10px; border-radius: 5px;">')
+        if 'frame_size' in event:
+            description.append(f"<p><strong>Frame size:</strong> {event['frame_size']}</p>")
+        if 'brightness' in event:
+            description.append(f"<p><strong>Brightness level:</strong> {event['brightness']:.2f}</p>")
+        if 'motion_detected' in event:
+            status = "Yes" if event['motion_detected'] else "No"
+            description.append(f"<p><strong>Motion detected:</strong> {status}</p>")
+        description.append('</div></div>')
             
         fe.description('\n'.join(description))
         

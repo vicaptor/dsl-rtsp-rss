@@ -25,7 +25,12 @@ class Executor:
             
             # Process stream
             async for result in self._process_stream():
-                await self.rss_service.add_event(result)
+                # Save frame image and add URL to results
+                image_url = self.rss_service.save_frame(result.pop('frame'), result['timestamp'])
+                if image_url:
+                    result['image_url'] = image_url
+                
+                self.rss_service.add_event(result)
         finally:
             self.running = False
             logger.info("Pipeline execution stopped")
@@ -69,12 +74,6 @@ class Executor:
 
                 # Process frame
                 processed_frame = await self._process_frame(frame)
-                
-                # Save frame image and add URL to results
-                image_url = await self.rss_service.save_frame(frame, processed_frame['timestamp'])
-                if image_url:
-                    processed_frame['image_url'] = image_url
-                
                 yield processed_frame
                 
                 # Control frame rate
@@ -88,6 +87,7 @@ class Executor:
         results = {
             'timestamp': datetime.now(timezone.utc).timestamp(),
             'frame_size': frame.shape,
+            'frame': frame  # Store original frame for saving
         }
         
         # Basic frame processing
